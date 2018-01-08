@@ -11,4 +11,8 @@
     <PackageReference Include="Telegram.Bot" Version="14.0.0-beta-342" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\StorageService\StorageService.csproj" />
+  </ItemGroup>
+
 </Project>

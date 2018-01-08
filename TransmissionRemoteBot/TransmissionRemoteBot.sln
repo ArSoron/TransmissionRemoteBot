@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Runner", "Runner\Runner.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelegramService", "TelegramService\TelegramService.csproj", "{D33C3B92-82D6-458B-9311-A59190326303}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StorageService", "StorageService\StorageService.csproj", "{7D731EA8-377F-493C-A154-8FF9425D1FC9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\Domain.csproj", "{6C35EB29-3466-4EA2-A58A-F6B1F9EA9A81}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{D33C3B92-82D6-458B-9311-A59190326303}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D33C3B92-82D6-458B-9311-A59190326303}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D33C3B92-82D6-458B-9311-A59190326303}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D731EA8-377F-493C-A154-8FF9425D1FC9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D731EA8-377F-493C-A154-8FF9425D1FC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D731EA8-377F-493C-A154-8FF9425D1FC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D731EA8-377F-493C-A154-8FF9425D1FC9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6C35EB29-3466-4EA2-A58A-F6B1F9EA9A81}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C35EB29-3466-4EA2-A58A-F6B1F9EA9A81}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C35EB29-3466-4EA2-A58A-F6B1F9EA9A81}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C35EB29-3466-4EA2-A58A-F6B1F9EA9A81}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

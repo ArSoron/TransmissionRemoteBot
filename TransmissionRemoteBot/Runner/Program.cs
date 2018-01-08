@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.IO;
 using System.Threading;
+using TransmissionRemoteBot.StorageService;
 using TransmissionRemoteBot.TelegramService;
 
 namespace TransmissionRemoteBot.Runner
@@ -22,8 +23,10 @@ namespace TransmissionRemoteBot.Runner
 
             var serviceProvider = new ServiceCollection()
             .AddLogging()
-            .AddSingleton<ITelegramService, TelegramService.TelegramService>()
             .AddSingleton<ITelegramConfiguration, TelegramConfiguration>()
+            .AddSingleton<IMongoStorageConfiguration, MongoStorageConfiguration>()
+            .AddSingleton<ITelegramService, TelegramService.TelegramService>()
+            .AddSingleton<IStorageService, MongoStorageService>()
             .BuildServiceProvider();
 
 #if DEBUG
@@ -46,9 +49,15 @@ namespace TransmissionRemoteBot.Runner
                 _completionEvent.WaitOne();
             }
         }
+
         private class TelegramConfiguration : ITelegramConfiguration
         {
             public string Apikey => _configurationRoot["telegram:apiKey"];
+        }
+
+        private class MongoStorageConfiguration : IMongoStorageConfiguration
+        {
+            public string ConnectionString => _configurationRoot["mongo:connectionString"];
         }
     }
 }
