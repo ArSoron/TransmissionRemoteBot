@@ -1,26 +1,54 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System;
-using TransmissionRemoteBot.Logic;
+using System.IO;
+using System.Threading;
+using TransmissionRemoteBot.TelegramService;
 
 namespace TransmissionRemoteBot.Runner
 {
-    class Program
+    public class Program
     {
+        private static ManualResetEvent _completionEvent = new ManualResetEvent(false);
+        private static IConfigurationRoot _configurationRoot;
+
         public static void Main(string[] args)
         {
+            _configurationRoot = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json")
+            .AddJsonFile("appsettings.local.json", optional: true)
+            .Build();
+
             var serviceProvider = new ServiceCollection()
             .AddLogging()
-            .AddSingleton<IService, Service>()
+            .AddSingleton<ITelegramService, TelegramService.TelegramService>()
+            .AddSingleton<ITelegramConfiguration, TelegramConfiguration>()
             .BuildServiceProvider();
 
+#if DEBUG
             serviceProvider
             .GetService<ILoggerFactory>()
-            .AddConsole(LogLevel.Information);
+            .AddConsole(LogLevel.Trace, true);
+#else
+            serviceProvider
+            .GetService<ILoggerFactory>()
+            .AddConsole(LogLevel.Information, true);
+#endif
 
-            var service = serviceProvider.GetService<IService>();
-            service.StayingAlive();
+            using (var service = serviceProvider.GetService<ITelegramService>())
+            {
 
+                service.Register();
+                
+                service.StayingAlive();
+
+                _completionEvent.WaitOne();
+            }
+        }
+        private class TelegramConfiguration : ITelegramConfiguration
+        {
+            public string Apikey => _configurationRoot["telegram:apiKey"];
         }
     }
 }
