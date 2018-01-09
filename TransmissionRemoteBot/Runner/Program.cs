@@ -1,9 +1,11 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System;
 using System.IO;
 using System.Threading;
 using TransmissionRemoteBot.TelegramService;
+using TransmissionRemoteBot.TransmissionService;
 
 namespace TransmissionRemoteBot.Runner
 {
@@ -20,10 +22,27 @@ namespace TransmissionRemoteBot.Runner
             .AddJsonFile("appsettings.local.json", optional: true)
             .Build();
 
+            ITransmissionConfiguration transmissionConfiguration;
+            try
+            {
+                transmissionConfiguration = new TransmissionConfiguration()
+                {
+                    Url = new Uri(_configurationRoot["transmission:url"]),
+                    Login = _configurationRoot["transmission:login"],
+                    Password = _configurationRoot["transmission:password"]
+                };
+            }
+            catch
+            {
+                transmissionConfiguration = null;
+            }
+
             var serviceProvider = new ServiceCollection()
             .AddLogging()
             .AddSingleton<ITelegramService, TelegramService.TelegramService>()
             .AddSingleton<ITelegramConfiguration, TelegramConfiguration>()
+            .AddSingleton(transmissionConfiguration)
+            .AddSingleton<ITransmissionService, TransmissionService.TransmissionService>()
             .BuildServiceProvider();
 
 #if DEBUG
@@ -40,7 +59,7 @@ namespace TransmissionRemoteBot.Runner
             {
 
                 service.Register();
-                
+
                 service.StayingAlive();
 
                 _completionEvent.WaitOne();

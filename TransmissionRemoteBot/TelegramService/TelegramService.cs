@@ -5,16 +5,23 @@ using System.Linq;
 using Telegram.Bot;
 using Telegram.Bot.Args;
 using Telegram.Bot.Types.Enums;
+using TransmissionRemoteBot.TransmissionService;
 
 namespace TransmissionRemoteBot.TelegramService
 {
     public class TelegramService : ITelegramService
     {
         private readonly ILogger<TelegramService> _logger;
+        private readonly ITransmissionConfiguration _defaultTransmissionConfiguration;
+        private readonly ITransmissionService _transmissionService;
+
+
         private readonly ITelegramBotClient _botClient;
 
-        public TelegramService(ITelegramConfiguration config, ILoggerFactory loggerFactory) {
+        public TelegramService(ITelegramConfiguration config, ITransmissionService transmissionService, ILoggerFactory loggerFactory, ITransmissionConfiguration defaultTransmissionConfiguration) {
             _logger = loggerFactory.CreateLogger<TelegramService>();
+            _defaultTransmissionConfiguration = defaultTransmissionConfiguration;
+            _transmissionService = transmissionService;
             _botClient = new TelegramBotClient(config.Apikey);
             _logger.LogInformation("Initialized");
         }
@@ -56,6 +63,28 @@ Choose /add to add your Transmission web interface to bot and start using it.
 /help would list all available commands
 ";
                     await _botClient.SendTextMessageAsync(message.Chat.Id, welcomeMessage);
+                    break;
+                case "/status":
+                    string responseMessage;
+                    if (_defaultTransmissionConfiguration == null)
+                    {
+                        responseMessage = "No servers specified. Add servers with /add command";
+                    }
+                    else
+                    {
+                        var status = await _transmissionService.GetStatusAsync(_defaultTransmissionConfiguration);
+
+                        if (status != null)
+                        {
+                            responseMessage = $"Active: {status.Arguments.ActiveTorrentCount}; Total: {status.Arguments.TorrentCount}; Down speed: {status.Arguments.DownloadSpeed}; Up speed: {status.Arguments.UploadSpeed}";
+                        }
+                        else
+                        {
+                            responseMessage = "Error fetching data";
+                        }
+                    }
+                    
+                    await _botClient.SendTextMessageAsync(message.Chat.Id, responseMessage);
                     break;
                 case "/help":
                 default:
