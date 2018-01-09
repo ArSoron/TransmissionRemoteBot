@@ -2,17 +2,13 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <RootNamespace>TransmissionRemoteBot.Logic</RootNamespace>
+    <RootNamespace>TransmissionRemoteBot.TransmissionService</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="2.0.0" />
-    <PackageReference Include="Telegram.Bot" Version="14.0.0-beta-342" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\TransmissionService\TransmissionService.csproj" />
+    <PackageReference Include="RestSharp" Version="106.2.1" />
   </ItemGroup>
 
 </Project>
