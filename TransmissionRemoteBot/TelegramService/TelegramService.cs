@@ -76,7 +76,7 @@ Choose /add to add your Transmission web interface to bot and start using it.
 
                         if (status != null)
                         {
-                            responseMessage = $"Active: {status.Arguments.ActiveTorrentCount}; Total: {status.Arguments.TorrentCount}; Down speed: {status.Arguments.DownloadSpeed}; Up speed: {status.Arguments.UploadSpeed}";
+                            responseMessage = $"Active: {status.ActiveTorrentCount}; Total: {status.torrentCount}; Down speed: {status.downloadSpeed}; Up speed: {status.uploadSpeed}";
                         }
                         else
                         {

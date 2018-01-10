@@ -1,47 +1,64 @@
 ﻿using Microsoft.Extensions.Logging;
 using RestSharp;
 using RestSharp.Authenticators;
+using RestSharp.Deserializers;
+using RestSharp.Serializers;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
+using TransmissionRemoteBot.Domain.Common;
+using TransmissionRemoteBot.Domain.Entity;
 
 namespace TransmissionRemoteBot.TransmissionService
 {
     public class TransmissionService : ITransmissionService
     {
         private readonly ILogger<TransmissionService> _logger;
+        private readonly ISerializer _serializer;
+        private readonly IDeserializer _deserializer;
 
-        public TransmissionService(ILoggerFactory loggerFactory)
+        public TransmissionService(ILoggerFactory loggerFactory, ISerializer serializer, IDeserializer deserializer)
         {
             _logger = loggerFactory.CreateLogger<TransmissionService>();
+            _serializer = serializer;
+            _deserializer = deserializer;
             _logger.LogInformation("Initialized");
         }
-        public async Task<TransmissionStatus> GetStatusAsync(ITransmissionConfiguration config)
+
+        public async Task<Statistic> GetStatusAsync(ITransmissionConfiguration config)
         {
-            var client = new RestClient(config.Url)
-            {
-                Authenticator = new HttpBasicAuthenticator(config.Login, config.Password),
-                
-            };
+            var client = CreateClient(config);
             var request = new RestRequest() { Method = Method.POST};
-            request.AddJsonBody(new
-            {
-                method = "session-stats"
-            });
+            request.JsonSerializer = _serializer;
+            request.AddJsonBody(new TransmissionRequest("session-stats"));
 
             try
             {
-                IRestResponse<TransmissionStatus> response = await client.ExecuteTaskWithCsrfCheckAsync<TransmissionStatus>(request);
+                IRestResponse<TransmissionResponse<Statistic>> response = await client.ExecuteTaskWithCsrfCheckAsync<TransmissionResponse<Statistic>>(request);
                 if (response.IsSuccessful)
                 {
-                    return response.Data;
+                    return response.Data.Arguments;
                 }
             }
             catch (Exception ex){
                 _logger.LogError(ex,"Failed to fetch data from server");
             }
             return null;
+        }
+        private RestClient CreateClient(ITransmissionConfiguration config)
+        {
+            var client = new RestClient(config.Url)
+            {
+                Authenticator = new HttpBasicAuthenticator(config.Login, config.Password),
+            };
+
+            // Override with Newtonsoft JSON Handler
+            client.AddHandler("application/json", _deserializer);
+            client.AddHandler("text/json", _deserializer);
+            client.AddHandler("text/x-json", _deserializer);
+            client.AddHandler("text/javascript", _deserializer);
+            client.AddHandler("*+json", _deserializer);
+
+            return client;
         }
     }
 }

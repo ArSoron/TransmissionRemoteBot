@@ -42,6 +42,8 @@ namespace TransmissionRemoteBot.Runner
             .AddSingleton<ITelegramService, TelegramService.TelegramService>()
             .AddSingleton<ITelegramConfiguration, TelegramConfiguration>()
             .AddSingleton(transmissionConfiguration)
+            .AddSingleton<RestSharp.Serializers.ISerializer, NewtonsoftJsonSerializer>()
+            .AddSingleton<RestSharp.Deserializers.IDeserializer, NewtonsoftJsonSerializer>()
             .AddSingleton<ITransmissionService, TransmissionService.TransmissionService>()
             .BuildServiceProvider();
 
