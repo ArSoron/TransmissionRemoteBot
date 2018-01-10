@@ -24,6 +24,29 @@ namespace TransmissionRemoteBot.TransmissionService
             _logger.LogInformation("Initialized");
         }
 
+        public async Task<TorrentInfoBase> AddTorrentAsync(ITransmissionConfiguration config, Uri uri)
+        {
+            var client = CreateClient(config);
+            var request = new RestRequest() { Method = Method.POST };
+            request.JsonSerializer = _serializer;
+            request.AddJsonBody(new TransmissionRequest("torrent-add", new NewTorrent() {
+                Filename = uri.ToString()
+            }));
+            try
+            {
+                IRestResponse<TransmissionResponse<TorrentAddedResponse>> response = await client.ExecuteTaskWithCsrfCheckAsync<TransmissionResponse<TorrentAddedResponse>>(request);
+                if (response.IsSuccessful)
+                {
+                    return response.Data.Arguments?.TorrentAdded;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to fetch data from server");
+            }
+            return null;
+        }
+
         public async Task<Statistic> GetStatusAsync(ITransmissionConfiguration config)
         {
             var client = CreateClient(config);

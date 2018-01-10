@@ -1,11 +1,12 @@
 ﻿using Newtonsoft.Json;
+using TransmissionRemoteBot.Domain.Common;
 
 namespace TransmissionRemoteBot.Domain.Entity
 {
     /// <summary>
     /// Information of added torrent
     /// </summary>
-    public class NewTorrentInfo
+    public class TorrentInfoBase
 	{
 		/// <summary>
 		/// Torrent ID

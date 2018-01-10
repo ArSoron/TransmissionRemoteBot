@@ -5,13 +5,8 @@ namespace TransmissionRemoteBot.Domain.Entity
     /// <summary>
     /// Torrent information
     /// </summary>
-    public class TorrentInfo
+    public class TorrentInfo : TorrentInfoBase
     {
-        /// <summary>
-        /// The torrent's unique Id.
-        /// </summary>
-        [JsonProperty("id")]
-        public int ID { get; set; }
 
         [JsonProperty("addedDate")]
         public int AddedDate { get; set; }
@@ -67,9 +62,6 @@ namespace TransmissionRemoteBot.Domain.Entity
         [JsonProperty("fileStats")]
         public TransmissionTorrentFileStats[] FileStats { get; set; }
 
-        [JsonProperty("hashString")]
-        public string HashString { get; set; }
-
         [JsonProperty("haveUnchecked")]
         public int HaveUnchecked { get; set; }
 
@@ -102,9 +94,6 @@ namespace TransmissionRemoteBot.Domain.Entity
 
         [JsonProperty("metadataPercentComplete")]
         public double MetadataPercentComplete { get; set; }
-
-        [JsonProperty("name")]
-        public string Name { get; set; }
 
         [JsonProperty("peer-limit")]
         public int PeerLimit { get; set; }
