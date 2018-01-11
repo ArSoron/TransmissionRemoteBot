@@ -5,7 +5,7 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace TransmissionRemoteBot.TransmissionService
+namespace TransmissionRemoteBot.Services.Transmission
 {
     public static class RestClientExtensions
     {

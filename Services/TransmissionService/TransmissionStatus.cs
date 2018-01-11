@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 
-namespace TransmissionRemoteBot.TransmissionService
+namespace TransmissionRemoteBot.Services.Transmission
 {
     public class TransmissionStatus
     {

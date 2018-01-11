@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TransmissionRemoteBot.TelegramService
+namespace TransmissionRemoteBot.Services.Telegram
 {
     public interface ITelegramService : IDisposable
     {

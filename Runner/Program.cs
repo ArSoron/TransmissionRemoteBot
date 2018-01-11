@@ -4,8 +4,8 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
 using System.Threading;
-using TransmissionRemoteBot.TelegramService;
-using TransmissionRemoteBot.TransmissionService;
+using TransmissionRemoteBot.Services.Telegram;
+using TransmissionRemoteBot.Services.Transmission;
 
 namespace TransmissionRemoteBot.Runner
 {
@@ -39,10 +39,12 @@ namespace TransmissionRemoteBot.Runner
 
             var serviceProvider = new ServiceCollection()
             .AddLogging()
-            .AddSingleton<ITelegramService, TelegramService.TelegramService>()
+            .AddSingleton<ITelegramService, TelegramService>()
             .AddSingleton<ITelegramConfiguration, TelegramConfiguration>()
             .AddSingleton(transmissionConfiguration)
-            .AddSingleton<ITransmissionService, TransmissionService.TransmissionService>()
+            .AddSingleton<RestSharp.Serializers.ISerializer, NewtonsoftJsonSerializer>()
+            .AddSingleton<RestSharp.Deserializers.IDeserializer, NewtonsoftJsonSerializer>()
+            .AddSingleton<ITransmissionService, TransmissionService>()
             .BuildServiceProvider();
 
 #if DEBUG

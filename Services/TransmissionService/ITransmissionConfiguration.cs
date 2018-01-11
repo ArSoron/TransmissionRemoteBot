@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TransmissionRemoteBot.TransmissionService
+namespace TransmissionRemoteBot.Services.Transmission
 {
     public interface ITransmissionConfiguration
     {

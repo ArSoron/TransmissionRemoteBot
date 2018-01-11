@@ -2,12 +2,14 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using Telegram.Bot;
 using Telegram.Bot.Args;
+using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using TransmissionRemoteBot.TransmissionService;
+using TransmissionRemoteBot.Services.Transmission;
 
-namespace TransmissionRemoteBot.TelegramService
+namespace TransmissionRemoteBot.Services.Telegram
 {
     public class TelegramService : ITelegramService
     {
@@ -18,7 +20,8 @@ namespace TransmissionRemoteBot.TelegramService
 
         private readonly ITelegramBotClient _botClient;
 
-        public TelegramService(ITelegramConfiguration config, ITransmissionService transmissionService, ILoggerFactory loggerFactory, ITransmissionConfiguration defaultTransmissionConfiguration) {
+        public TelegramService(ITelegramConfiguration config, ITransmissionService transmissionService, ILoggerFactory loggerFactory, ITransmissionConfiguration defaultTransmissionConfiguration)
+        {
             _logger = loggerFactory.CreateLogger<TelegramService>();
             _defaultTransmissionConfiguration = defaultTransmissionConfiguration;
             _transmissionService = transmissionService;
@@ -28,7 +31,8 @@ namespace TransmissionRemoteBot.TelegramService
 
         public void Register()
         {
-            using (_logger.BeginScope("Service registration")) {
+            using (_logger.BeginScope("Service registration"))
+            {
                 _logger.LogInformation("Starting");
                 _botClient.OnMessage += BotOnMessageReceived;
                 _botClient.OnMessageEdited += BotOnMessageReceived;
@@ -43,7 +47,7 @@ namespace TransmissionRemoteBot.TelegramService
         {
             var message = $"I'm alive at {DateTime.UtcNow}";
 #if DEBUG
-            Debug.Write(message + "DebugLog");
+            Debug.Write(message + " DebugLog");
 #endif
             _logger.LogInformation(message + "LoggerFactoryLog");
         }
@@ -65,26 +69,54 @@ Choose /add to add your Transmission web interface to bot and start using it.
                     await _botClient.SendTextMessageAsync(message.Chat.Id, welcomeMessage);
                     break;
                 case "/status":
-                    string responseMessage;
+                    string statusText = "";
                     if (_defaultTransmissionConfiguration == null)
                     {
-                        responseMessage = "No servers specified. Add servers with /add command";
+                        await _botClient.SendTextMessageAsync(message.Chat.Id, "No servers specified. Add servers with /add command");
+                        break;
+                    }                    
+
+                    var cancellationTokenSource = new CancellationTokenSource();
+                    cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(15));
+                    Message sentMessage = null;
+                    await Repeat.Interval(TimeSpan.FromSeconds(1), async () =>
+                     {
+                         var status = await _transmissionService.GetStatusAsync(_defaultTransmissionConfiguration);
+                         if (status == null)
+                         {
+                             await _botClient.SendTextMessageAsync(message.Chat.Id, "Error fetching data");
+                             return;
+                         }
+                         var oldMessage = statusText;
+                         statusText = $"Active: {status.ActiveTorrentCount}; Total: {status.torrentCount}; Down speed: {status.downloadSpeed}; Up speed: {status.uploadSpeed}";
+                         if (statusText != oldMessage)
+                         {
+                             sentMessage = sentMessage?.MessageId == null 
+                             ? await _botClient.SendTextMessageAsync(message.Chat.Id, "🔄 " + statusText)
+                             : await _botClient.EditMessageTextAsync(message.Chat.Id, sentMessage.MessageId, "🔄 " + statusText);
+                         }
+                     }, cancellationTokenSource.Token);
+                    await _botClient.EditMessageTextAsync(message.Chat.Id, sentMessage.MessageId, statusText);
+                    break;
+                case "/add":
+                    var torrentLink = message.Text.Split(' ').Skip(1).FirstOrDefault();
+                    if (!Uri.TryCreate(torrentLink, UriKind.Absolute, out Uri torrentUri))
+                    {
+                        statusText = "Wrong uri";
                     }
                     else
                     {
-                        var status = await _transmissionService.GetStatusAsync(_defaultTransmissionConfiguration);
-
-                        if (status != null)
+                        var newTorrent = await _transmissionService.AddTorrentAsync(_defaultTransmissionConfiguration, torrentUri);
+                        if (newTorrent != null)
                         {
-                            responseMessage = $"Active: {status.Arguments.ActiveTorrentCount}; Total: {status.Arguments.TorrentCount}; Down speed: {status.Arguments.DownloadSpeed}; Up speed: {status.Arguments.UploadSpeed}";
+                            statusText = $"Torrent added: {newTorrent.Name}";
                         }
                         else
                         {
-                            responseMessage = "Error fetching data";
+                            statusText = "Error adding torrent";
                         }
                     }
-                    
-                    await _botClient.SendTextMessageAsync(message.Chat.Id, responseMessage);
+                    await _botClient.SendTextMessageAsync(message.Chat.Id, statusText);
                     break;
                 case "/help":
                 default:

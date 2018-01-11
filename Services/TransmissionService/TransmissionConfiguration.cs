@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace TransmissionRemoteBot.TransmissionService
+namespace TransmissionRemoteBot.Services.Transmission
 {
     public class TransmissionConfiguration : ITransmissionConfiguration
     {
