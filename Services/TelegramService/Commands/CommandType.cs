@@ -5,6 +5,8 @@
         Start,
         Help,
         Status,
-        Add
+        Add,
+        Top,
+        List
     }
 }
