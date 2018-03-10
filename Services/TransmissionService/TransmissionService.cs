@@ -4,10 +4,12 @@ using RestSharp.Authenticators;
 using RestSharp.Deserializers;
 using RestSharp.Serializers;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using TransmissionRemoteBot.Domain.Transmission.Common;
 using TransmissionRemoteBot.Domain.Transmission.Entity;
 
+//https://trac.transmissionbt.com/browser/trunk/extras/rpc-spec.txt
 namespace TransmissionRemoteBot.Services.Transmission
 {
     public class TransmissionService : ITransmissionService
@@ -56,7 +58,7 @@ namespace TransmissionRemoteBot.Services.Transmission
 
             try
             {
-                IRestResponse<TransmissionResponse<Statistic>> response = await client.ExecuteTaskWithCsrfCheckAsync<TransmissionResponse<Statistic>>(request);
+                var response = await client.ExecuteTaskWithCsrfCheckAsync<TransmissionResponse<Statistic>>(request);
                 if (response.IsSuccessful)
                 {
                     return response.Data.Arguments;
@@ -67,6 +69,29 @@ namespace TransmissionRemoteBot.Services.Transmission
             }
             return null;
         }
+
+        public async Task<IEnumerable<TorrentInfo>> GetTorrentsAsync(ITransmissionConfiguration config)
+        {
+            var client = CreateClient(config);
+            var request = new RestRequest() { Method = Method.POST };
+            request.JsonSerializer = _serializer;
+            request.AddJsonBody(new TransmissionRequest("torrent-get", new TorrentRequestArguments { Fields = TorrentFields.ALL_FIELDS }));
+
+            try
+            {
+                var response = await client.ExecuteTaskWithCsrfCheckAsync<TransmissionResponse<TorrentsResponse>>(request);
+                if (response.IsSuccessful)
+                {
+                    return response.Data.Arguments.Torrents;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to fetch data from server");
+            }
+            return null;
+        }
+
         private RestClient CreateClient(ITransmissionConfiguration config)
         {
             var client = new RestClient(config.Url)

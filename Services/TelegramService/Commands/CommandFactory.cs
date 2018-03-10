@@ -25,6 +25,10 @@ namespace TransmissionRemoteBot.Services.Telegram.Commands
                     return new StatusCommand(_botClient, _transmissionService, _defaultTransmissionConfiguration);
                 case CommandType.Add:
                     return new AddCommand(_botClient, _transmissionService, _defaultTransmissionConfiguration);
+                case CommandType.List:
+                    return new ListCommand(_botClient);
+                case CommandType.Top:
+                    return new TopCommand(_botClient, _transmissionService, _defaultTransmissionConfiguration);
                 case CommandType.Help:
                 default:
                     return new HelpCommand(_botClient);

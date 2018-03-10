@@ -43,7 +43,7 @@ namespace TransmissionRemoteBot.Runner
             .AddLogging()
             .AddScoped<ITelegramService, TelegramService>()
             .AddScoped<ITelegramConfiguration, TelegramConfiguration>()
-            .AddScoped<ITelegramBotClient>((sp) => {
+            .AddSingleton<ITelegramBotClient>((sp) => {
                 var config = sp.GetRequiredService<ITelegramConfiguration>();
                 return new TelegramBotClient(config.Apikey);
             })
