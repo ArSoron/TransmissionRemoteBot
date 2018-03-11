@@ -41,8 +41,7 @@ namespace TransmissionRemoteBot.Services.Telegram
 
         public void StayingAlive()
         {
-            var message = $"I'm alive at {DateTime.UtcNow}";
-            _logger.LogInformation(message + "LoggerFactoryLog");
+            _logger.LogInformation($"Ah, ha, ha, ha, stayin' alive @ {DateTime.UtcNow}");
         }
 
         #region Handlers

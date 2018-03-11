@@ -1,0 +1,11 @@
+﻿[Unit]
+Description=Transmission Remote Bot
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/dotnet /home/arsoron/TransmissionRemoteBot/ConsoleRunner.dll 5000
+WorkingDirectory=/home/arsoron/TransmissionRemoteBot
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
