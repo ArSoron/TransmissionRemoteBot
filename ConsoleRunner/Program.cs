@@ -7,9 +7,10 @@ using System.Threading;
 using Telegram.Bot;
 using TransmissionRemoteBot.Services.Telegram;
 using TransmissionRemoteBot.Services.Telegram.Commands;
+using TransmissionRemoteBot.Services.Telegram.Helpers;
 using TransmissionRemoteBot.Services.Transmission;
 
-namespace TransmissionRemoteBot.Runner
+namespace TransmissionRemoteBot.ConsoleRunner
 {
     public class Program
     {
@@ -42,11 +43,12 @@ namespace TransmissionRemoteBot.Runner
             var serviceProvider = new ServiceCollection()
             .AddLogging()
             .AddScoped<ITelegramService, TelegramService>()
-            .AddScoped<ITelegramConfiguration, TelegramConfiguration>()
+            .AddSingleton<ITelegramConfiguration, TelegramConfiguration>()
             .AddSingleton<ITelegramBotClient>((sp) => {
                 var config = sp.GetRequiredService<ITelegramConfiguration>();
                 return new TelegramBotClient(config.Apikey);
             })
+            .AddScoped<SelfUpdatingMessage>()
             .AddSingleton(transmissionConfiguration)
             .AddSingleton<RestSharp.Serializers.ISerializer, NewtonsoftJsonSerializer>()
             .AddSingleton<RestSharp.Deserializers.IDeserializer, NewtonsoftJsonSerializer>()
