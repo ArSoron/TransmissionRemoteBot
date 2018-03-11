@@ -286,4 +286,4 @@ __pycache__/
 *.btm.cs
 *.odx.cs
 *.xsd.cs
-/Runner/appsettings.local.json
+/ConsoleRunner/appsettings.local.json

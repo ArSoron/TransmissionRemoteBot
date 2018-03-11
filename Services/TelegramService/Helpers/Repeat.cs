@@ -3,7 +3,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace TransmissionRemoteBot.Services.Telegram
+namespace TransmissionRemoteBot.Services.Telegram.Helpers
 {
     internal static class Repeat
     {
@@ -24,7 +24,8 @@ namespace TransmissionRemoteBot.Services.Telegram
                         if (token.WaitCancellationRequested(pollInterval))
                             break;
                     }
-                }, token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+                }, token, TaskCreationOptions.LongRunning, TaskScheduler.Default)
+                .ContinueWith((task) => { }); //suppress taskCancelledException
         }
     }
 

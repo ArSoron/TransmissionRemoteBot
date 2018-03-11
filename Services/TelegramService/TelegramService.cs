@@ -10,8 +10,6 @@ namespace TransmissionRemoteBot.Services.Telegram
 {
     public class TelegramService : ITelegramService
     {
-        private static string defaultCommand = "/help";
-
         private readonly ILogger<TelegramService> _logger;
         private readonly ITelegramBotClient _botClient;
         private readonly ICommandFactory _commandFactory;
@@ -34,6 +32,8 @@ namespace TransmissionRemoteBot.Services.Telegram
                 _botClient.OnMessageEdited += BotOnMessageReceived;
                 _botClient.OnReceiveError += BotOnReceiveError;
 
+                _botClient.OnReceiveGeneralError += BotOnReceiveGeneralError;
+
                 _botClient.StartReceiving();
                 _logger.LogInformation("Now Receiving");
             }
@@ -50,7 +50,7 @@ namespace TransmissionRemoteBot.Services.Telegram
         {
             var message = messageEventArgs.Message;
 
-            if (message == null || message.Type != MessageType.TextMessage)
+            if (message == null || message.Type != MessageType.Text)
             {
                 return;
             }
@@ -63,6 +63,11 @@ namespace TransmissionRemoteBot.Services.Telegram
         private void BotOnReceiveError(object sender, ReceiveErrorEventArgs receiveErrorEventArgs)
         {
             _logger.LogError($"Received error: {receiveErrorEventArgs.ApiRequestException.ErrorCode} — {receiveErrorEventArgs.ApiRequestException.Message}");
+        }
+
+        private void BotOnReceiveGeneralError(object sender, ReceiveGeneralErrorEventArgs e)
+        {
+            _logger.LogError(e.Exception, "Received general error");
         }
         #endregion
 

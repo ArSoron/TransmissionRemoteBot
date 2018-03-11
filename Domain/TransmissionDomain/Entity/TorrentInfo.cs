@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using TransmissionRemoteBot.Domain.Transmission.Common;
 
 namespace TransmissionRemoteBot.Domain.Transmission.Entity
 {
@@ -162,7 +163,7 @@ namespace TransmissionRemoteBot.Domain.Transmission.Entity
         public int StartDate { get; set; }
 
         [JsonProperty("Status")]
-        public int Status { get; set; }
+        public TorrentStatus Status { get; set; }
 
 		[JsonProperty("trackers")]
         public TransmissionTorrentTrackers[] Trackers { get; set; }
